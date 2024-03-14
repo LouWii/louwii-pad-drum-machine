@@ -1,5 +1,9 @@
 # Notes
 
+## Bootloader
+
+Can install Arduino Caterina bootloader on the ATmega32u4 (`Leonardo` or `Micro` variant). [Bootloaders on Github](https://github.com/arduino/ArduinoCore-avr/tree/master/bootloaders/caterina)
+
 ## Pins attribution
 
 We're using Arduino code on a custom ATmega32u4 board, which means the pinout is different, pin numbers are different
@@ -70,3 +74,59 @@ Played from Arturia Minilab mkII, drum pad. Note hex 24 = 36 in decimal
  00000779   1  --     99    24    5E   10  C  2 Note On               
  000007BA   1  --     89    24    00   10  C  2 Note Off              
 ```
+
+### Drum notes
+
+| Drum Sound       | Note | Midi num (dec.) |
+|------------------|------|-----------------|
+| Bass Drum / Kick | C1   | 36              |
+| Side Kick        | C#1  | 37              |
+| Snare            | D1   | 38              |
+| Closed Hi-Hat    | F#1  | 42              |
+| Open Hi-Hat      | Bb1  | 48              |
+
+[From this PDF](https://musescore.org/sites/musescore.org/files/General%20MIDI%20Standard%20Percussion%20Set%20Key%20Map.pdf)
+
+## Timing / Time precision
+
+### DS3231 precision RTC
+
+Can buy this with pinout to connect to Arduino
+
+### Reset timer
+
+```
+extern volatile unsigned long timer0_millis;
+unsigned long new_value = 1000;
+
+void setup(){
+  Serial.begin(9600);
+}
+
+void loop(){
+
+  Serial.print("millis = "); Serial.println(millis());
+
+  if (millis() > 4000)
+    setMillis(new_value);
+
+  delay(333);
+}
+
+void setMillis(unsigned long new_millis){
+  uint8_t oldSREG = SREG;
+  cli();
+  timer0_millis = new_millis;
+  SREG = oldSREG;
+}
+```
+
+[Arduino thread](https://forum.arduino.cc/t/reset-millis/657638/5)
+
+### Handle `millis()` rollover
+
+[Stackoverflow thread](https://arduino.stackexchange.com/questions/12587/how-can-i-handle-the-millis-rollover)
+
+### Hardware timer
+
+[Lib](https://www.arduino.cc/reference/en/libraries/timerinterrupt/) - [on Github](https://github.com/khoih-prog/TimerInterrupt)
